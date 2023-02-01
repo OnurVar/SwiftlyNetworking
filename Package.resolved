@@ -1,0 +1,14 @@
+{
+  "pins" : [
+    {
+      "identity" : "swiftlyhelper",
+      "kind" : "localSourceControl",
+      "location" : "/Users/onurvar/Projects/SwiftlyHelper",
+      "state" : {
+        "branch" : "main",
+        "revision" : "b0432b6ba0d4f5f0e69304a67aa03e7e5b2f3578"
+      }
+    }
+  ],
+  "version" : 2
+}

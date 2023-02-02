@@ -21,25 +21,35 @@ public enum ApiError: Error {
 
 extension ApiError: LocalizedError {
     public var errorDescription: String? {
+        return "Oops, something went wrong. Please try again later. \(self.errorMessage)"
+    }
+
+    var errorMessage: String {
         switch self {
         case .NoStatusCode:
-            return "Error [1001]"
+            return "[Error:1001]"
         case .NetworkError(let message):
-            return "Error [1002] \(message)"
+            return "[Error:1002] [Message:\(message)]"
         case .BadResponse(let statusCode):
-            return "Error [1003] \(statusCode)"
+            return "[Error:1003] [Code:\(statusCode)]"
         case .ServerError(let statusCode, let message):
-            return "Error [1004] \(statusCode ?? 0) - \(message ?? "")]"
+            if let statusCode {
+                if let message {
+                    return "[Error:1004] [Code:\(statusCode)] [Message:\(message)]"
+                }
+                return "[Error:1004] [Code:\(statusCode)]"
+            }
+            return "[Error:1004]"
         case .UnknownNetworkError:
-            return "Error [1005]"
+            return "[Error:1005]"
         case .NoJsonDecoder:
-            return "Error [1006]"
+            return "[Error:1006]"
         case .InvalidToken:
-            return "Error [1007]"
+            return "[Error:1007]"
         case .BadDecoding(let message):
-            return "Error [1008] \(message)"
+            return "[Error:1008] [Message:\(message)]"
         case .BadURL:
-            return "Error [1009]"
+            return "[Error:1009]"
         }
     }
 }

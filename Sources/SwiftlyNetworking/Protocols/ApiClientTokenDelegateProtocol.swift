@@ -6,10 +6,8 @@
 //
 
 protocol ApiClientTokenDelegateProtocol {
-//    associatedtype JWT: Encodable
-    func getRefreshTokenRequest() -> RequestProtocol
-    func getRefreshToken() -> String?
+    func getRefreshTokenRequest() -> RequestProtocol?
     func getAuthToken() -> String?
-    func onTokenChange(token: Decodable)
+    func onTokenChange(decodableToken: Decodable)
     func onTokenRemove()
 }

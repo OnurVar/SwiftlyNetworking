@@ -8,26 +8,42 @@
 @testable import SwiftlyNetworking
 
 enum EndpointMock {
-    case ListUser
-    case ListWalkthrough
+    case NoEndpoint
+    case WalkthroughsList
+    case TagsList
+    case CustomerRefresh(body: CustomerRefreshRequest)
 }
 
 extension EndpointMock: RequestProtocol {
     var path: String {
         switch self {
-        case .ListUser:
-            return "/users"
-        case .ListWalkthrough:
+        case .NoEndpoint:
+            return "/no_endpoint"
+        case .WalkthroughsList:
             return "/walk_throughs/list"
+        case .TagsList:
+            return "/tags/list"
+        case .CustomerRefresh:
+            return "/customers/refresh"
         }
     }
 
     var httpMethod: String {
-        return "GET"
+        switch self {
+        case .NoEndpoint, .WalkthroughsList, .TagsList:
+            return "GET"
+        case .CustomerRefresh:
+            return "POST"
+        }
     }
 
     var body: Encodable? {
-        return nil
+        switch self {
+        case .NoEndpoint, .WalkthroughsList, .TagsList:
+            return nil
+        case .CustomerRefresh(let body):
+            return body
+        }
     }
 
     var queryParameter: Encodable? {

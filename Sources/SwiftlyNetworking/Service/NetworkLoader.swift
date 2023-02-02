@@ -1,5 +1,5 @@
 //
-//  NetworkClient.swift
+//  NetworkLoader.swift
 //
 //
 //  Created by Onur Var on 1.02.2023.
@@ -7,9 +7,10 @@
 
 import Foundation
 
-struct NetworkClient: NetworkClientProtocol {
+struct NetworkLoader: NetworkLoaderProtocol {
     // MARK: Variables
 
+    var requestConfig: RequestConfigProtocol
     var serverConfig: ServerConfigProtocol
     var parserDelegate: ApiClientParserDelegate?
     var logicDelegate: ApiClientLogicDelegateProtocol?
@@ -19,7 +20,7 @@ struct NetworkClient: NetworkClientProtocol {
     func sendRequest<T: Decodable>(request: RequestProtocol, authToken: String?, Type: T.Type) async throws -> T {
         // Get the URLRequest
         let urlRequest = try request.getRequest(config: serverConfig, authToken: authToken)
-        print("urlRequest", urlRequest.allHTTPHeaderFields)
+
         // Execute
         let (data, response) = try await execute(urlRequest: urlRequest)
 
@@ -47,12 +48,13 @@ struct NetworkClient: NetworkClientProtocol {
     }
 
     func execute(urlRequest: URLRequest) async throws -> (Data, URLResponse) {
+        let logger = NetworkLogger(withURLRequest: urlRequest, withConfig: requestConfig)
         do {
             let (data, response) = try await URLSession.shared.data(for: urlRequest)
-            let str = String(decoding: data, as: UTF8.self)
-            print("response", str)
+            logger.log(data: data, response: response)
             return (data, response)
         } catch {
+            logger.log(error: error)
             throw ApiError.NetworkError(message: error.localizedDescription)
         }
     }
@@ -67,7 +69,6 @@ struct NetworkClient: NetworkClientProtocol {
             }
             return emptyResponse
         }
-        print("parse", data.toJSONString())
         do {
             let response = try decoder.decode(Type, from: data)
             return response

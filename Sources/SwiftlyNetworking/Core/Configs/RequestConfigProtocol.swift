@@ -6,8 +6,6 @@
 //
 
 protocol RequestConfigProtocol {
-    // MARK: Variables
-
     var logRequest: Bool { get }
     var logRequestHeader: Bool { get }
     var logRequestBody: Bool { get }

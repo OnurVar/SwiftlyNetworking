@@ -9,20 +9,24 @@ import Foundation
 import Logging
 
 class NetworkLogger {
-    let logger = Logger(label: "NetworkLogger")
+    // MARK: Variables
 
+    let logger = Logger(label: "SwiftlyNetworking")
     let request: URLRequest
-    let config: RequestConfigProtocol
-    let requestCreatedAt: Date
+    let requestConfig: RequestConfigProtocol
+    let requestCreatedAt = Date()
 
-    init(withURLRequest request: URLRequest, withConfig config: RequestConfigProtocol) {
+    // MARK: Life Cycle
+
+    init(withURLRequest request: URLRequest, withRequestConfig requestConfig: RequestConfigProtocol) {
         self.request = request
-        self.config = config
-        self.requestCreatedAt = .init()
+        self.requestConfig = requestConfig
     }
+}
 
+extension NetworkLogger: NetworkLoggerProtocol {
     func log(data: Data, response: URLResponse) {
-        guard config.logRequest else {
+        guard requestConfig.logRequest else {
             return
         }
         var message = ""
@@ -39,21 +43,21 @@ class NetworkLogger {
         message = message + "Status: \(statusCode) \(Int(timeDifference))ms\n"
         message = message + "[\(method)] \(urlAsString)"
 
-        if config.logRequestHeader {
+        if requestConfig.logRequestHeader {
             message = message + "\n-- Request Header --"
             for (key, value) in request.allHTTPHeaderFields ?? [:] {
                 message = message + "\n\(key): \(value)"
             }
         }
 
-        if config.logRequestBody {
+        if requestConfig.logRequestBody {
             if let body = request.httpBody {
                 message = message + "\n-- Request Body --\n"
                 message = message + "\(String(data: body, encoding: .utf8) ?? "")"
             }
         }
 
-        if config.logResponseHeader {
+        if requestConfig.logResponseHeader {
             message = message + "\n-- Response Header --"
             if let response = response as? HTTPURLResponse {
                 for (key, value) in response.allHeaderFields {
@@ -61,7 +65,7 @@ class NetworkLogger {
                 }
             }
         }
-        if config.logResponseBody {
+        if requestConfig.logResponseBody {
             message = message + "\n-- Response Body --\n"
             message = message + "\(String(data: data, encoding: .utf8) ?? "")"
         }
@@ -70,7 +74,7 @@ class NetworkLogger {
     }
 
     func log(error: Error) {
-        guard config.logRequest else {
+        guard requestConfig.logRequest else {
             return
         }
         var message = ""
@@ -82,14 +86,14 @@ class NetworkLogger {
         message = message + "Status: \(Int(timeDifference))ms\n"
         message = message + "[\(method)] \(urlAsString)"
 
-        if config.logRequestHeader {
+        if requestConfig.logRequestHeader {
             message = message + "\n-- Request Header --"
             for (key, value) in request.allHTTPHeaderFields ?? [:] {
                 message = message + "\n\(key): \(value)"
             }
         }
 
-        if config.logRequestBody {
+        if requestConfig.logRequestBody {
             if let body = request.httpBody {
                 message = message + "\n-- Request Body --\n"
                 message = message + "\(String(data: body, encoding: .utf8) ?? "")"

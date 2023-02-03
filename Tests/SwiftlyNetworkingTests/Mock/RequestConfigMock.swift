@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  RequestConfigMock.swift
 //
 //
 //  Created by Onur Var on 1.02.2023.

@@ -6,8 +6,6 @@
 //
 
 protocol ServerConfigProtocol {
-    // MARK: Variables
-
     var scheme: String { get }
     var host: String { get }
 }

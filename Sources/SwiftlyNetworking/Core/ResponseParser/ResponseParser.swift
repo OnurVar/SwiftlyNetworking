@@ -8,7 +8,13 @@
 import Foundation
 
 public class ResponseParser {
+    // MARK: Variables
+
     public var delegate: ResponseParserDelegateProtocol?
+
+    // MARK: Life Cycle
+
+    public init() {}
 }
 
 extension ResponseParser: ResponseParserProtocol {

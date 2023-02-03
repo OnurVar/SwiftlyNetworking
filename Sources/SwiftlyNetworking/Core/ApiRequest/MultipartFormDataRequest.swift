@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct MultipartFormDataRequest {
+public class MultipartFormDataRequest {
     // MARK: Variables
 
     private let path: String

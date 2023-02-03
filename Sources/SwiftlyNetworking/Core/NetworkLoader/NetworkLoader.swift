@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct NetworkLoader {
+public class NetworkLoader {
     public var delegate: NetworkLoaderDelegateProtocol?
 }
 

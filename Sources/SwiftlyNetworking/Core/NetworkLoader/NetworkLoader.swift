@@ -8,7 +8,13 @@
 import Foundation
 
 public class NetworkLoader {
+    // MARK: Variables
+
     public var delegate: NetworkLoaderDelegateProtocol?
+
+    // MARK: Life Cycle
+
+    public init() {}
 }
 
 extension NetworkLoader: NetworkLoaderProtocol {

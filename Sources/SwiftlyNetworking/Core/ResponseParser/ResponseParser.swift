@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ResponseParser {
+public class ResponseParser {
     public var delegate: ResponseParserDelegateProtocol?
 }
 

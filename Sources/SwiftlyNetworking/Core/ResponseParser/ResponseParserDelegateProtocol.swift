@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol ResponseParserDelegateProtocol {
+public protocol ResponseParserDelegateProtocol {
     func getJsonDecoder(request: RequestProtocol) -> JSONDecoder?
 }

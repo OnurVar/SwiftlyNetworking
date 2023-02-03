@@ -5,7 +5,7 @@
 //  Created by Onur Var on 1.02.2023.
 //
 
-protocol RequestConfigProtocol {
+public protocol RequestConfigProtocol {
     var logRequest: Bool { get }
     var logRequestHeader: Bool { get }
     var logRequestBody: Bool { get }

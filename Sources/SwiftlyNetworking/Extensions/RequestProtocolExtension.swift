@@ -8,7 +8,7 @@
 import Foundation
 import SwiftlyHelper
 
-extension RequestProtocol {
+public extension RequestProtocol {
     // MARK: Methods
 
     private func getURL(withServerConfig serverConfig: ServerConfigProtocol) throws -> URL {

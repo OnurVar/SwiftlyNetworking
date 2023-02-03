@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol NetworkLoaderDelegateProtocol {
+public protocol NetworkLoaderDelegateProtocol {
     func parseErrorMessage(data: Data) -> String?
     func checkInvalidTokenResponse(errorMessage: String) -> Bool
     func getLogger(urlRequest: URLRequest) -> NetworkLoggerProtocol?

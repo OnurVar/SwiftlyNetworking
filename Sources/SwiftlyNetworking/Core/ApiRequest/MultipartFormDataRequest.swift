@@ -7,20 +7,20 @@
 
 import Foundation
 
-struct MultipartFormDataRequest {
+public struct MultipartFormDataRequest {
     // MARK: Variables
 
-    let path: String
-    let httpMethod: String
-    let queryParameter: Encodable?
-    let refreshTokenOnFailEnabled: Bool
+    private let path: String
+    private let httpMethod: String
+    private let queryParameter: Encodable?
+    private let refreshTokenOnFailEnabled: Bool
     
-    let boundary: String
-    var body: NSMutableData
+    private let boundary: String
+    private var body: NSMutableData
 
     // MARK: Life Cycle
 
-    init(
+    public init(
         path: String,
         httpMethod: String,
         queryParameter: Encodable? = nil,
@@ -36,33 +36,33 @@ struct MultipartFormDataRequest {
 }
 
 extension MultipartFormDataRequest: RequestProtocol {
-    var rPath: String {
+    public var rPath: String {
         return path
     }
     
-    var rHttpMethod: String {
+    public var rHttpMethod: String {
         return httpMethod
     }
     
-    var rQueryParameter: Encodable? {
+    public var rQueryParameter: Encodable? {
         return queryParameter
     }
     
-    var rBody: Data? {
+    public var rBody: Data? {
         body.appendString("--\(boundary)--")
         return body as Data
     }
     
-    var rHeaders: [String: String]? {
+    public var rHeaders: [String: String]? {
         return ["Content-Type": "multipart/form-data; boundary=\(boundary)"]
     }
     
-    var rRefreshTokenOnFailEnabled: Bool {
+    public var rRefreshTokenOnFailEnabled: Bool {
         return refreshTokenOnFailEnabled
     }
 }
 
-extension MultipartFormDataRequest {
+public extension MultipartFormDataRequest {
     // MARK: Text Methods
     
     func addTextField(named name: String, value: String) {

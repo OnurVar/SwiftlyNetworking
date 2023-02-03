@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct ResponseParser {
-    var delegate: ResponseParserDelegateProtocol?
+public struct ResponseParser {
+    public var delegate: ResponseParserDelegateProtocol?
 }
 
 extension ResponseParser: ResponseParserProtocol {
-    func parse<T: Decodable>(data: Data, request: RequestProtocol, Type: T.Type) throws -> T {
+    public func parse<T: Decodable>(data: Data, request: RequestProtocol, Type: T.Type) throws -> T {
         // Get the JSONDecoder for a request
         let decoder = delegate?.getJsonDecoder(request: request) ?? JSONDecoder()
 

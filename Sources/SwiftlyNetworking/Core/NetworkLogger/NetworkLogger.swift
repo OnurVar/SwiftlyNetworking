@@ -8,24 +8,24 @@
 import Foundation
 import Logging
 
-class NetworkLogger {
+public class NetworkLogger {
     // MARK: Variables
 
-    let logger = Logger(label: "SwiftlyNetworking")
-    let request: URLRequest
-    let requestConfig: RequestConfigProtocol
-    let requestCreatedAt = Date()
+    private let logger = Logger(label: "SwiftlyNetworking")
+    private let request: URLRequest
+    private let requestConfig: RequestConfigProtocol
+    private let requestCreatedAt = Date()
 
     // MARK: Life Cycle
 
-    init(withURLRequest request: URLRequest, withRequestConfig requestConfig: RequestConfigProtocol) {
+    public init(withURLRequest request: URLRequest, withRequestConfig requestConfig: RequestConfigProtocol) {
         self.request = request
         self.requestConfig = requestConfig
     }
 }
 
 extension NetworkLogger: NetworkLoggerProtocol {
-    func log(data: Data, response: URLResponse) {
+    public func log(data: Data, response: URLResponse) {
         guard requestConfig.logRequest else {
             return
         }
@@ -73,7 +73,7 @@ extension NetworkLogger: NetworkLoggerProtocol {
         logger.info("\(message)")
     }
 
-    func log(error: Error) {
+    public func log(error: Error) {
         guard requestConfig.logRequest else {
             return
         }

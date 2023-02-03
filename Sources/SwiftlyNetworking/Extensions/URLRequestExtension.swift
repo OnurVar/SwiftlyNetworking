@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension URLRequest {
+public extension URLRequest {
     func execute(withNetworkLogger networkLogger: NetworkLoggerProtocol?) async throws -> (Data, URLResponse) {
         do {
             let (data, response) = try await URLSession.shared.data(for: self)

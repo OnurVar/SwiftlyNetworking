@@ -5,7 +5,7 @@
 //  Created by Onur Var on 1.02.2023.
 //
 
-protocol ApiClientDelegateProtocol {
+public protocol ApiClientDelegateProtocol {
     func getRefreshTokenRequest() -> RequestProtocol?
     func getAuthToken() -> String?
     func onTokenChange(decodableToken: Decodable)

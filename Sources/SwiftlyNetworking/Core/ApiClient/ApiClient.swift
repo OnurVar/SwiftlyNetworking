@@ -5,17 +5,17 @@
 //  Created by Onur Var on 1.02.2023.
 //
 
-class ApiClient<TokenType: Decodable>: ApiClientProtocol {
+public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     // MARK: Variables
 
-    var delegate: ApiClientDelegateProtocol?
-    var responseParser: ResponseParserProtocol
-    var networkLoader: NetworkLoaderProtocol
-    var serverConfig: ServerConfigProtocol
+    public var delegate: ApiClientDelegateProtocol?
+    private var responseParser: ResponseParserProtocol
+    private var networkLoader: NetworkLoaderProtocol
+    private var serverConfig: ServerConfigProtocol
 
     // MARK: Life Cycle
 
-    init(
+    public init(
         responseParser: ResponseParserProtocol,
         networkLoader: NetworkLoaderProtocol,
         serverConfig: ServerConfigProtocol
@@ -28,7 +28,7 @@ class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     // MARK: Methods
 
     /// This methods sends the request to server. If it failes due to InvalidToken error, It tries to refresh the token and retry the request
-    func request<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
+    public func request<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
         do {
             return try await makeRequest(request: request, ResponseType: ResponseType)
         } catch ApiError.InvalidToken {

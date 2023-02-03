@@ -24,7 +24,7 @@ extension ApiError: LocalizedError {
         return "Oops, something went wrong. Please try again later. \(self.errorMessage)"
     }
 
-    var errorMessage: String {
+    private var errorMessage: String {
         switch self {
         case .NoStatusCode:
             return "[Error:1001]"

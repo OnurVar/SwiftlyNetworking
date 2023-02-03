@@ -7,24 +7,24 @@
 
 import Foundation
 
-class JsonRequest {
+public class JsonRequest {
     // MARK: Variables
 
-    var path: String
-    var httpMethod: String
-    var queryParameter: Encodable?
-    var body: Encodable?
-    var refreshTokenOnFailEnabled: Bool
+    private let path: String
+    private let httpMethod: String
+    private let queryParameter: Encodable?
+    private let body: Encodable?
+    private let refreshTokenOnFailEnabled: Bool
 
     // MARK: Life Cycle
 
-     init(
+    public init(
         path: String,
         httpMethod: String,
         queryParameter: Encodable? = nil,
         body: Encodable? = nil,
         refreshTokenOnFailEnabled: Bool = true
-     ) {
+    ) {
         self.path = path
         self.httpMethod = httpMethod
         self.queryParameter = queryParameter
@@ -34,27 +34,27 @@ class JsonRequest {
 }
 
 extension JsonRequest: RequestProtocol {
-    var rRefreshTokenOnFailEnabled: Bool {
+    public var rRefreshTokenOnFailEnabled: Bool {
         return refreshTokenOnFailEnabled
     }
 
-    var rPath: String {
+    public var rPath: String {
         return path
     }
 
-    var rHttpMethod: String {
+    public var rHttpMethod: String {
         return httpMethod
     }
 
-    var rQueryParameter: Encodable? {
+    public var rQueryParameter: Encodable? {
         return queryParameter
     }
 
-    var rBody: Data? {
+    public var rBody: Data? {
         return body?.toJSONData()
     }
 
-    var rHeaders: [String: String]? {
+    public var rHeaders: [String: String]? {
         return [
             "Content-Type": "application/json",
             "Accept": "application/json",

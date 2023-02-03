@@ -7,6 +7,6 @@
 
 import Foundation
 
-protocol NetworkLoaderProtocol {
+public protocol NetworkLoaderProtocol {
     func sendRequest(urlRequest: URLRequest) async throws -> Data
 }

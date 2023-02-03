@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct NetworkLoader {
-    var delegate: NetworkLoaderDelegateProtocol?
+public struct NetworkLoader {
+    public var delegate: NetworkLoaderDelegateProtocol?
 }
 
 extension NetworkLoader: NetworkLoaderProtocol {
-    func sendRequest(urlRequest: URLRequest) async throws -> Data {
+    public func sendRequest(urlRequest: URLRequest) async throws -> Data {
         // Get the NetworkLogger
         let networkLogger = delegate?.getLogger(urlRequest: urlRequest)
 

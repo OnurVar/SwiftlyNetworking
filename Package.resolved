@@ -11,11 +11,11 @@
     },
     {
       "identity" : "swiftlyhelper",
-      "kind" : "localSourceControl",
-      "location" : "/Users/onurvar/Projects/SwiftlyHelper",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/OnurVar/SwiftlyHelper.git",
       "state" : {
-        "branch" : "main",
-        "revision" : "b0432b6ba0d4f5f0e69304a67aa03e7e5b2f3578"
+        "revision" : "73f47c46372033d935609bf65c00e885cddda109",
+        "version" : "1.0.0"
       }
     }
   ],

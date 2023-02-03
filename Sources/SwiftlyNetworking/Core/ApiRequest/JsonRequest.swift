@@ -14,7 +14,7 @@ class JsonRequest {
     var httpMethod: String
     var queryParameter: Encodable?
     var body: Encodable?
-    var refreshTokenOnFailEnabled = true
+    var refreshTokenOnFailEnabled: Bool
 
     // MARK: Life Cycle
 

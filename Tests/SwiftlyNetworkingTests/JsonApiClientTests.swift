@@ -19,8 +19,10 @@ class JsonApiClientTests: XCTestCase {
 
     var serverConfig: ServerConfigMock!
     var requestConfig: RequestConfigMock!
+
+    var responseParser: ResponseParser!
     var networkLoader: NetworkLoader!
-    var jsonApiClient: JsonApiClient<JWTApiEntity>!
+    var apiClient: ApiClient<JWTApiEntity>!
 
     override func setUp() {
         authToken = nil
@@ -30,19 +32,22 @@ class JsonApiClientTests: XCTestCase {
         serverConfig = ServerConfigMock()
         requestConfig = RequestConfigMock()
 
-        networkLoader = NetworkLoader(requestConfig: requestConfig, serverConfig: serverConfig)
-        networkLoader.logicDelegate = self
-        networkLoader.parserDelegate = self
+        responseParser = ResponseParser()
+        responseParser.delegate = self
 
-        jsonApiClient = JsonApiClient(networkLoader: networkLoader)
-        jsonApiClient.tokenDelegate = self
+        networkLoader = NetworkLoader()
+        networkLoader.delegate = self
+
+        apiClient = ApiClient(responseParser: responseParser, networkLoader: networkLoader, serverConfig: serverConfig)
+        apiClient.delegate = self
     }
 
     func test_non_exist_endpoint() async throws {
         // Execute
-        let request = EndpointMock.NoEndpoint
+
         do {
-            let response = try await jsonApiClient.request(request: request, ResponseType: [WalkthroughApiEntity].self, TokenType: JWTApiEntity.self)
+            let request = NonExistRequest()
+            let response = try await apiClient.request(request: request, ResponseType: [WalkthroughApiEntity].self, TokenType: JWTApiEntity.self)
             XCTAssertEqual(response.count, 0)
         } catch {
             XCTAssertEqual(error.localizedDescription, ApiError.ServerError(statusCode: 404, message: "Cannot GET /no_endpoint").localizedDescription)
@@ -51,8 +56,8 @@ class JsonApiClientTests: XCTestCase {
 
     func test_unauthorized_endpoint_no_auth_token() async throws {
         // Execute
-        let request = EndpointMock.WalkthroughsList
-        let response = try await jsonApiClient.request(request: request, ResponseType: [WalkthroughApiEntity].self, TokenType: JWTApiEntity.self)
+        let request = GetWalkthroughListUseCase()
+        let response = try await apiClient.request(request: request, ResponseType: [WalkthroughApiEntity].self, TokenType: JWTApiEntity.self)
         XCTAssertNotEqual(response.count, 0)
     }
 
@@ -61,16 +66,16 @@ class JsonApiClientTests: XCTestCase {
         authToken = validToken
 
         // Execute
-        let request = EndpointMock.TagsList
-        let response = try await jsonApiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
+        let request = GetTagListRequest()
+        let response = try await apiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
         XCTAssertNotEqual(response.count, 0)
     }
 
     func test_authorized_endpoint_with_no_token() async throws {
         // Execute
-        let request = EndpointMock.TagsList
         do {
-            let response = try await jsonApiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
+            let request = GetTagListRequest()
+            let response = try await apiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
             XCTAssertEqual(response.count, 0)
         } catch {
             XCTAssertEqual(error.localizedDescription, ApiError.ServerError(statusCode: 401, message: "Unauthorized").localizedDescription)
@@ -82,9 +87,9 @@ class JsonApiClientTests: XCTestCase {
         authToken = invalidToken
 
         // Execute
-        let request = EndpointMock.TagsList
         do {
-            let response = try await jsonApiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
+            let request = GetTagListRequest()
+            let response = try await apiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
             XCTAssertEqual(response.count, 0)
         } catch {
             XCTAssertEqual(error.localizedDescription, ApiError.ServerError(statusCode: 401, message: "Unauthorized").localizedDescription)
@@ -97,9 +102,9 @@ class JsonApiClientTests: XCTestCase {
         invalidTokenResponse = true
 
         // Execute
-        let request = EndpointMock.TagsList
         do {
-            let response = try await jsonApiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
+            let request = GetTagListRequest()
+            let response = try await apiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
             XCTAssertEqual(response.count, 0)
         } catch {
             XCTAssertEqual(error.localizedDescription, ApiError.InvalidToken.localizedDescription)
@@ -110,34 +115,39 @@ class JsonApiClientTests: XCTestCase {
         // Setup
         authToken = invalidToken
         invalidTokenResponse = true
-        refreshTokenRequest = EndpointMock.CustomerRefresh(body: .init(refresh_token: refreshToken))
+        refreshTokenRequest = PostCustomerRefresh(body: .init(refresh_token: refreshToken))
 
         // Execute
-        let request = EndpointMock.TagsList
-        let response = try await jsonApiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
+        let request = GetTagListRequest()
+        let response = try await apiClient.request(request: request, ResponseType: [TagApiEntity].self, TokenType: JWTApiEntity.self)
         XCTAssertNotEqual(response.count, 0)
     }
 }
 
-extension JsonApiClientTests: ApiClientLogicDelegateProtocol {
+extension JsonApiClientTests: NetworkLoaderDelegateProtocol {
+    func getLogger(urlRequest: URLRequest) -> NetworkLoggerProtocol? {
+        let logger = NetworkLogger(withURLRequest: urlRequest, withRequestConfig: requestConfig)
+        return logger
+    }
+
     func checkInvalidTokenResponse(errorMessage: String) -> Bool {
         print("checkInvalidTokenResponse", errorMessage)
         return invalidTokenResponse
     }
-}
 
-extension JsonApiClientTests: ApiClientParserDelegate {
     func parseErrorMessage(data: Data) -> String? {
         let message = try? JSONDecoder().decode(ErrorApiEntity.self, from: data)
         return message?.message
     }
+}
 
-    func getJsonDecoder(request: SwiftlyNetworking.RequestProtocol) -> JSONDecoder {
+extension JsonApiClientTests: ResponseParserDelegateProtocol {
+    func getJsonDecoder(request: SwiftlyNetworking.RequestProtocol) -> JSONDecoder? {
         return JSONDecoder()
     }
 }
 
-extension JsonApiClientTests: ApiClientTokenDelegateProtocol {
+extension JsonApiClientTests: ApiClientDelegateProtocol {
     func onTokenChange(decodableToken: Decodable) {
         guard let token = decodableToken as? JWTApiEntity else {
             return

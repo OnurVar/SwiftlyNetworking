@@ -11,38 +11,42 @@ import SwiftlyHelper
 extension RequestProtocol {
     // MARK: Methods
 
-    func getURL(config: ServerConfigProtocol) throws -> URL {
+    private func getURL(withServerConfig serverConfig: ServerConfigProtocol) throws -> URL {
         var urlComponents = URLComponents()
-        
-        urlComponents.scheme = config.scheme
-        urlComponents.host = config.host
-        urlComponents.path = path
-        urlComponents.queryItems = queryParameter?.toQueryParameters()
+
+        urlComponents.scheme = serverConfig.scheme
+        urlComponents.host = serverConfig.host
+        urlComponents.path = rPath
+        urlComponents.queryItems = rQueryParameter?.toQueryParameters()
 
         guard let url = urlComponents.url else {
             throw ApiError.BadURL
         }
-        
+
         return url
     }
 
-    func getRequest(config: ServerConfigProtocol, authToken: String? = nil) throws -> URLRequest {
-        let url = try getURL(config: config)
-        
+    func getURLRequest(withServerConfig serverConfig: ServerConfigProtocol, withAuthToken authToken: String? = nil) throws -> URLRequest {
+        // Get the URL
+        let url = try getURL(withServerConfig: serverConfig)
+
+        // Create the URLRequest
         var urlRequest = URLRequest(url: url)
+
         // Set HttpMethod
-        urlRequest.httpMethod = httpMethod
-        
+        urlRequest.httpMethod = rHttpMethod
+
         // Set Headers
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        urlRequest.addValue("application/json", forHTTPHeaderField: "Accept")
-        if let authToken = authToken {
+        self.rHeaders?.forEach { key, value in
+            urlRequest.setValue(value, forHTTPHeaderField: key)
+        }
+        if let authToken {
             urlRequest.addValue("Bearer \(authToken)", forHTTPHeaderField: "Authorization")
         }
-        
+
         // Set Body
-        urlRequest.httpBody = body?.toJSONData()
-        
+        urlRequest.httpBody = rBody
+
         return urlRequest
     }
 }

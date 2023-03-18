@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class JsonRequest {
+open class JsonRequest {
     // MARK: Variables
 
     private let path: String

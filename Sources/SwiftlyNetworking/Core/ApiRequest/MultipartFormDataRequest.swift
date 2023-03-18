@@ -14,7 +14,6 @@ open class MultipartFormDataRequest {
     private let httpMethod: HttpMethodType
     private let queryParameter: Encodable?
     private let refreshTokenOnFailEnabled: Bool
-    
     private let boundary: String
     private var body: NSMutableData
 
@@ -22,7 +21,7 @@ open class MultipartFormDataRequest {
 
     public init(
         path: String,
-        httpMethod: HttpMethodType = .GET,
+        httpMethod: HttpMethodType,
         queryParameter: Encodable? = nil,
         refreshTokenOnFailEnabled: Bool = true
     ) {

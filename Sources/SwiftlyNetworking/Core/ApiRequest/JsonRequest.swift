@@ -11,7 +11,7 @@ open class JsonRequest {
     // MARK: Variables
 
     private let path: String
-    private let httpMethod: String
+    private let httpMethod: HttpMethodType
     private let queryParameter: Encodable?
     private let body: Encodable?
     private let refreshTokenOnFailEnabled: Bool
@@ -20,7 +20,7 @@ open class JsonRequest {
 
     public init(
         path: String,
-        httpMethod: String,
+        httpMethod: HttpMethodType = .GET,
         queryParameter: Encodable? = nil,
         body: Encodable? = nil,
         refreshTokenOnFailEnabled: Bool = true
@@ -42,7 +42,7 @@ extension JsonRequest: RequestProtocol {
         return path
     }
 
-    public var rHttpMethod: String {
+    public var rHttpMethod: HttpMethodType {
         return httpMethod
     }
 

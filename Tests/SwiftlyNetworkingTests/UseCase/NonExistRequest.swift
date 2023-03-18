@@ -9,6 +9,6 @@
 
 class NonExistRequest: JsonRequest {
     init() {
-        super.init(path: "/no_endpoint", httpMethod: "GET")
+        super.init(path: "/no_endpoint")
     }
 }

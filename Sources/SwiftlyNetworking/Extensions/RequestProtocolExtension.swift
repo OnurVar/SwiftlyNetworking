@@ -34,7 +34,7 @@ public extension RequestProtocol {
         var urlRequest = URLRequest(url: url)
 
         // Set HttpMethod
-        urlRequest.httpMethod = rHttpMethod
+        urlRequest.httpMethod = rHttpMethod.rawValue
 
         // Set Headers
         self.rHeaders?.forEach { key, value in

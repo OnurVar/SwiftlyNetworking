@@ -9,6 +9,6 @@
 
 class PostCustomerRefresh: JsonRequest {
     init(body: CustomerRefreshRequest) {
-        super.init(path: "/customers/refresh", httpMethod: "POST", body: body)
+        super.init(path: "/customers/refresh", httpMethod: .POST, body: body)
     }
 }

@@ -9,7 +9,7 @@ import Foundation
 
 public protocol RequestProtocol {
     var rPath: String { get }
-    var rHttpMethod: String { get }
+    var rHttpMethod: HttpMethodType { get }
     var rQueryParameter: Encodable? { get }
     var rBody: Data? { get }
     var rHeaders: [String: String]? { get }

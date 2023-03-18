@@ -20,7 +20,7 @@ open class JsonRequest {
 
     public init(
         path: String,
-        httpMethod: HttpMethodType = .GET,
+        httpMethod: HttpMethodType,
         queryParameter: Encodable? = nil,
         body: Encodable? = nil,
         refreshTokenOnFailEnabled: Bool = true

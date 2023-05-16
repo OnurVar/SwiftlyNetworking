@@ -19,6 +19,9 @@ public extension RequestProtocol {
         urlComponents.path = rPath
         urlComponents.queryItems = rQueryParameter?.toQueryParameters()
 
+        let characterSet = CharacterSet(charactersIn: "/+:").inverted
+        urlComponents.percentEncodedQuery = urlComponents.percentEncodedQuery?.addingPercentEncoding(withAllowedCharacters: characterSet)
+
         guard let url = urlComponents.url else {
             throw ApiError.BadURL
         }

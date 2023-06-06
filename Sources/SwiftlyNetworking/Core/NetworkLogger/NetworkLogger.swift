@@ -29,6 +29,7 @@ extension NetworkLogger: NetworkLoggerProtocol {
         guard requestConfig.logRequest else {
             return
         }
+        var isSuccessful = false
         var message = ""
 
         let timeDifference = Date().timeIntervalSince(requestCreatedAt) * 1000
@@ -38,6 +39,7 @@ extension NetworkLogger: NetworkLoggerProtocol {
         var statusCode = ""
         if let response = response as? HTTPURLResponse {
             statusCode = "\(response.statusCode)"
+            isSuccessful = (200 ..< 300).contains(response.statusCode)
         }
 
         message = message + "Status: \(statusCode) \(Int(timeDifference))ms\n"
@@ -69,8 +71,11 @@ extension NetworkLogger: NetworkLoggerProtocol {
             message = message + "\n-- Response Body --\n"
             message = message + "\(String(data: data, encoding: .utf8) ?? "")"
         }
-
-        logger.info("\(message)")
+        if isSuccessful {
+            logger.info("\(message)")
+        } else {
+            logger.error("\(message)")
+        }
     }
 
     public func log(error: Error) {

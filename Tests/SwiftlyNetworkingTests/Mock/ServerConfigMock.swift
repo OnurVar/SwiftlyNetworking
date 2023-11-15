@@ -8,6 +8,7 @@
 @testable import SwiftlyNetworking
 
 struct ServerConfigMock: ServerConfigProtocol {
-    let scheme = "https"
-    let host = "reqres.in/api"
+    let scheme: String = "https"
+    let host: String = "reqres.in/api"
+    let port: Int? = nil
 }

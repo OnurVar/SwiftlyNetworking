@@ -8,4 +8,5 @@
 public protocol ServerConfigProtocol {
     var scheme: String { get }
     var host: String { get }
+    var port: Int? { get }
 }

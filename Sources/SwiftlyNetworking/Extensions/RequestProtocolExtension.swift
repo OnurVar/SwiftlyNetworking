@@ -16,6 +16,7 @@ public extension RequestProtocol {
 
         urlComponents.scheme = serverConfig.scheme
         urlComponents.host = serverConfig.host
+        urlComponents.port = serverConfig.port
         urlComponents.path = rPath
         urlComponents.queryItems = rQueryParameter?.toQueryParameters()
 

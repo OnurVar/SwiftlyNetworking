@@ -8,15 +8,6 @@
         "revision" : "32e8d724467f8fe623624570367e3d50c5638e46",
         "version" : "1.5.2"
       }
-    },
-    {
-      "identity" : "swiftlyhelper",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/OnurVar/SwiftlyHelper.git",
-      "state" : {
-        "revision" : "73f47c46372033d935609bf65c00e885cddda109",
-        "version" : "1.0.0"
-      }
     }
   ],
   "version" : 2

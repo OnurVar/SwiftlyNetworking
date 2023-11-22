@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import SwiftlyHelper
 
 public extension RequestProtocol {
     // MARK: Methods

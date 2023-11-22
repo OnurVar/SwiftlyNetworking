@@ -14,7 +14,6 @@ let package = Package(
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
-        .package(url: "https://github.com/OnurVar/SwiftlyHelper.git", from: "1.0.0"),
         .package(url: "https://github.com/apple/swift-log.git", from: "1.0.0"),
     ],
     targets: [
@@ -23,7 +22,6 @@ let package = Package(
         .target(
             name: "SwiftlyNetworking",
             dependencies: [
-                "SwiftlyHelper",
                 .product(name: "Logging", package: "swift-log"),
             ]),
         .testTarget(

@@ -9,6 +9,6 @@
 
 class GetTagListRequest: JsonRequest {
     init() {
-        super.init(path: "/tags/list", httpMethod: .POST)
+        super.init(path: "/tags/list", httpMethod: .GET)
     }
 }

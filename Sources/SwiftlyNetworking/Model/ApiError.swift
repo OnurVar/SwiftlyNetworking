@@ -17,6 +17,7 @@ public enum ApiError: Error {
     case InvalidToken
     case BadDecoding(message: String)
     case BadURL
+    case NoUrlExecutor
 }
 
 extension ApiError: LocalizedError {
@@ -50,6 +51,8 @@ extension ApiError: LocalizedError {
             return "[Error:1008] [Message:\(message)]"
         case .BadURL:
             return "[Error:1009]"
+        case .NoUrlExecutor:
+            return "[Error:1010]"
         }
     }
 }

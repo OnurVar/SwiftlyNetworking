@@ -9,6 +9,6 @@
 
 class GetWalkthroughListUseCase: JsonRequest {
     init() {
-        super.init(path: "/walk_throughs/list", httpMethod: .POST)
+        super.init(path: "/walk_throughs/list", httpMethod: .GET)
     }
 }

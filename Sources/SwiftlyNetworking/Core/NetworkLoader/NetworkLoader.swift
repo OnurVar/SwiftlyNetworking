@@ -19,11 +19,13 @@ public class NetworkLoader {
 
 extension NetworkLoader: NetworkLoaderProtocol {
     public func sendRequest(urlRequest: URLRequest) async throws -> Data {
-        // Get the NetworkLogger
-        let networkLogger = delegate?.getLogger(urlRequest: urlRequest)
+        // Get the executor from the delegate
+        guard let urlExecutor = delegate?.getExecutor(urlRequest: urlRequest) else {
+            throw ApiError.NoUrlExecutor
+        }
 
-        // Execute
-        let (data, response) = try await urlRequest.execute(withNetworkLogger: networkLogger)
+        // Execute the request
+        let (data, response) = try await urlExecutor.execute()
 
         // Check if StatusCode exist
         guard let statusCode = (response as? HTTPURLResponse)?.statusCode else {

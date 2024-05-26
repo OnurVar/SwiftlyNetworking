@@ -5,6 +5,8 @@
 //  Created by Onur Var on 1.02.2023.
 //
 
+import Foundation
+
 public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     // MARK: Variables
 
@@ -12,31 +14,79 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     private var responseParser: ResponseParserProtocol
     private var networkLoader: NetworkLoaderProtocol
     private var serverConfig: ServerConfigProtocol
+    private let queue: DispatchQueue
+    var requestCount = 0
 
     // MARK: Life Cycle
 
     public init(
         responseParser: ResponseParserProtocol,
         networkLoader: NetworkLoaderProtocol,
-        serverConfig: ServerConfigProtocol
+        serverConfig: ServerConfigProtocol,
+        queue: DispatchQueue? = nil
     ) {
         self.responseParser = responseParser
         self.networkLoader = networkLoader
         self.serverConfig = serverConfig
+
+        if let queue {
+            self.queue = queue
+        } else {
+            self.queue = DispatchQueue(label: "com.onurvar.swiftlynetworking")
+        }
     }
 
     // MARK: Methods
 
     /// This methods sends the request to server. If it failes due to InvalidToken error, It tries to refresh the token and retry the request
     public func request<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
-        do {
-            return try await makeRequest(request: request, ResponseType: ResponseType)
-        } catch ApiError.InvalidToken {
-            try await refreshToken(TokenType: TokenType)
-            return try await makeRequest(request: request, ResponseType: ResponseType)
-        } catch {
-            throw error
+        let label = "\(requestCount) - \(request.rPath)"
+        requestCount = requestCount + 1
+        
+        print("RECEIVED: ", label)
+        let task = queue.sync {
+            print("QUEUE #1: ", request.rPath)
+            return Task {
+                print("TASK #2: ", request.rPath)
+                do {
+                    try await Thread.sleep(forTimeInterval: 3)
+                    let response = try await makeRequest(request: request, ResponseType: ResponseType)
+                    print("RECEIVED #3: ", request.rPath)
+                    return response
+                } catch ApiError.InvalidToken {
+                    try await refreshToken(TokenType: TokenType)
+                    return try await makeRequest(request: request, ResponseType: ResponseType)
+                } catch {
+                    throw error
+                }
+            }
         }
+        let response = try await task.value
+        print("FINISHED: ", label)
+        return response
+//
+//        let result = try await wow.value
+//
+//        return try await withCheckedThrowingContinuation { continuation in
+//            queue.sync {
+//                Task {
+//                    do {
+//                        let response = try await makeRequest(request: request, ResponseType: ResponseType)
+//                        continuation.resume(returning: response)
+//                    } catch ApiError.InvalidToken {
+//                        do {
+//                            try await refreshToken(TokenType: TokenType)
+//                            let response = try await makeRequest(request: request, ResponseType: ResponseType)
+//                            continuation.resume(returning: response)
+//                        } catch {
+//                            continuation.resume(throwing: error)
+//                        }
+//                    } catch {
+//                        continuation.resume(throwing: error)
+//                    }
+//                }
+//            }
+//        }
     }
 
     private func makeRequest<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type) async throws -> ResponseType {

@@ -43,62 +43,21 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     /// This methods sends the request to server. If it failes due to InvalidToken error, It tries to refresh the token and retry the request
     public func request<ResponseType: Decodable>(taskName: String = "", request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
         print("\(taskName) RECEIVED \(request.rPath)")
-        semaphore.wait()
-//        throw ApiError.UnknownNetworkError
-        print("\(taskName) EXECUTING \(request.rPath)")
-        do {
-            let response = try await execute(request: request, ResponseType: ResponseType, TokenType: TokenType)
-            semaphore.signal()
-            return response
-        } catch {
-            semaphore.signal()
-            throw error
+        return try await withCheckedThrowingContinuation { continuation in
+            queue.sync {
+                semaphore.wait()
+                Task {
+                    do {
+                        let response = try await execute(request: request, ResponseType: ResponseType, TokenType: TokenType)
+                        semaphore.signal()
+                        continuation.resume(returning: response)
+                    } catch {
+                        semaphore.signal()
+                        continuation.resume(throwing: error)
+                    }
+                }
+            }
         }
-        
-//        print("RECEIVED: ", label)
-//        let task = queue.sync {
-//            print("QUEUE #1: ", request.rPath)
-//            return Task {
-//                print("TASK #2: ", request.rPath)
-//                do {
-//                    try await Thread.sleep(forTimeInterval: 3)
-//                    let response = try await makeRequest(request: request, ResponseType: ResponseType)
-//                    print("RECEIVED #3: ", request.rPath)
-//                    return response
-//                } catch ApiError.InvalidToken {
-//                    try await refreshToken(TokenType: TokenType)
-//                    return try await makeRequest(request: request, ResponseType: ResponseType)
-//                } catch {
-//                    throw error
-//                }
-//            }
-//        }
-//        let response = try await task.value
-//        print("FINISHED: ", label)
-//        return response
-//
-//        let result = try await wow.value
-//
-//        return try await withCheckedThrowingContinuation { continuation in
-//            queue.sync {
-//                Task {
-//                    do {
-//                        let response = try await makeRequest(request: request, ResponseType: ResponseType)
-//                        continuation.resume(returning: response)
-//                    } catch ApiError.InvalidToken {
-//                        do {
-//                            try await refreshToken(TokenType: TokenType)
-//                            let response = try await makeRequest(request: request, ResponseType: ResponseType)
-//                            continuation.resume(returning: response)
-//                        } catch {
-//                            continuation.resume(throwing: error)
-//                        }
-//                    } catch {
-//                        continuation.resume(throwing: error)
-//                    }
-//                }
-//            }
-//        }
     }
 
     public func execute<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {

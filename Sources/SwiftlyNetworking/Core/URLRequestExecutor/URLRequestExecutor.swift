@@ -17,9 +17,9 @@ public struct URLRequestExecutor: URLRequestExecutorProtocol {
     // MARK: Life Cycle
 
     public init(
-        urlRequest: URLRequest,
-        session: URLSession,
-        networkLogger: NetworkLoggerProtocol?
+        withUrlRequest urlRequest: URLRequest,
+        withSession session: URLSession,
+        withNetworkLogger networkLogger: NetworkLoggerProtocol?
     ) {
         self.urlRequest = urlRequest
         self.session = session

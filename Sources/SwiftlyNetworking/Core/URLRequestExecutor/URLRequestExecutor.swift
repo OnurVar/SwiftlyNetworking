@@ -10,13 +10,13 @@ import Foundation
 public struct URLRequestExecutor: URLRequestExecutorProtocol {
     // MARK: Variables
 
-    let urlRequest: URLRequest
-    let session: URLSession
-    let networkLogger: NetworkLoggerProtocol?
+    private let urlRequest: URLRequest
+    private let session: URLSession
+    private let networkLogger: NetworkLoggerProtocol?
 
     // MARK: Life Cycle
 
-    init(
+    public init(
         urlRequest: URLRequest,
         session: URLSession,
         networkLogger: NetworkLoggerProtocol?

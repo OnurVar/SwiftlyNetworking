@@ -8,4 +8,5 @@
 enum MockRequestResultType {
     case TagList
     case WalkthroughList
+    case SpaceList
 }

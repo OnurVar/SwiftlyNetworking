@@ -15,6 +15,8 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     private var networkLoader: NetworkLoaderProtocol
     private var serverConfig: ServerConfigProtocol
     private let queue: DispatchQueue
+    private let semaphore = DispatchSemaphore(value: 1)
+
     var requestCount = 0
 
     // MARK: Life Cycle
@@ -39,31 +41,41 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
     // MARK: Methods
 
     /// This methods sends the request to server. If it failes due to InvalidToken error, It tries to refresh the token and retry the request
-    public func request<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
-        let label = "\(requestCount) - \(request.rPath)"
-        requestCount = requestCount + 1
-        
-        print("RECEIVED: ", label)
-        let task = queue.sync {
-            print("QUEUE #1: ", request.rPath)
-            return Task {
-                print("TASK #2: ", request.rPath)
-                do {
-                    try await Thread.sleep(forTimeInterval: 3)
-                    let response = try await makeRequest(request: request, ResponseType: ResponseType)
-                    print("RECEIVED #3: ", request.rPath)
-                    return response
-                } catch ApiError.InvalidToken {
-                    try await refreshToken(TokenType: TokenType)
-                    return try await makeRequest(request: request, ResponseType: ResponseType)
-                } catch {
-                    throw error
-                }
-            }
+    public func request<ResponseType: Decodable>(taskName: String = "", request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
+        print("\(taskName) RECEIVED \(request.rPath)")
+        semaphore.wait()
+//        throw ApiError.UnknownNetworkError
+        print("\(taskName) EXECUTING \(request.rPath)")
+        do {
+            let response = try await execute(request: request, ResponseType: ResponseType, TokenType: TokenType)
+            semaphore.signal()
+            return response
+        } catch {
+            semaphore.signal()
+            throw error
         }
-        let response = try await task.value
-        print("FINISHED: ", label)
-        return response
+        
+//        print("RECEIVED: ", label)
+//        let task = queue.sync {
+//            print("QUEUE #1: ", request.rPath)
+//            return Task {
+//                print("TASK #2: ", request.rPath)
+//                do {
+//                    try await Thread.sleep(forTimeInterval: 3)
+//                    let response = try await makeRequest(request: request, ResponseType: ResponseType)
+//                    print("RECEIVED #3: ", request.rPath)
+//                    return response
+//                } catch ApiError.InvalidToken {
+//                    try await refreshToken(TokenType: TokenType)
+//                    return try await makeRequest(request: request, ResponseType: ResponseType)
+//                } catch {
+//                    throw error
+//                }
+//            }
+//        }
+//        let response = try await task.value
+//        print("FINISHED: ", label)
+//        return response
 //
 //        let result = try await wow.value
 //
@@ -87,6 +99,17 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
 //                }
 //            }
 //        }
+    }
+
+    public func execute<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
+        do {
+            return try await makeRequest(request: request, ResponseType: ResponseType)
+        } catch ApiError.InvalidToken {
+            try await refreshToken(TokenType: TokenType)
+            return try await makeRequest(request: request, ResponseType: ResponseType)
+        } catch {
+            throw error
+        }
     }
 
     private func makeRequest<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type) async throws -> ResponseType {

@@ -37,7 +37,9 @@ class JsonApiClientTests: XCTestCase {
         networkLoader = NetworkLoader()
         networkLoader.delegate = self
 
-        apiClient = ApiClient(responseParser: responseParser, networkLoader: networkLoader, serverConfig: serverConfig)
+        let queue: DispatchQueue = .init(label: "com.onurvar.swiftlynetworking", qos: .background)
+
+        apiClient = ApiClient(responseParser: responseParser, networkLoader: networkLoader, serverConfig: serverConfig, queue: queue)
         apiClient.delegate = self
     }
 

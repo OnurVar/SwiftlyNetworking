@@ -25,30 +25,25 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
         responseParser: ResponseParserProtocol,
         networkLoader: NetworkLoaderProtocol,
         serverConfig: ServerConfigProtocol,
-        queue: DispatchQueue? = nil
+        queue: DispatchQueue
     ) {
         self.responseParser = responseParser
         self.networkLoader = networkLoader
         self.serverConfig = serverConfig
-
-        if let queue {
-            self.queue = queue
-        } else {
-            self.queue = DispatchQueue(label: "com.onurvar.swiftlynetworking")
-        }
+        self.queue = queue
     }
 
     // MARK: Methods
-
-    /// This methods sends the request to server. If it failes due to InvalidToken error, It tries to refresh the token and retry the request
-    public func request<ResponseType: Decodable>(taskName: String = "", request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
-        print("\(taskName) RECEIVED \(request.rPath)")
+    
+    /// It sends the request to the server and returns the response object.
+    /// The requests are executed in a serial queue.
+    public func request<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
         return try await withCheckedThrowingContinuation { continuation in
             queue.sync {
                 semaphore.wait()
                 Task {
                     do {
-                        let response = try await execute(request: request, ResponseType: ResponseType, TokenType: TokenType)
+                        let response = try await executeRequestWithRetry(request: request, ResponseType: ResponseType, TokenType: TokenType)
                         semaphore.signal()
                         continuation.resume(returning: response)
                     } catch {
@@ -60,18 +55,23 @@ public class ApiClient<TokenType: Decodable>: ApiClientProtocol {
         }
     }
 
-    public func execute<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
+    /// First, it tries to execute the request.
+    /// If it fails due to InvalidToken error, It tries to refresh the token and retry the request
+    private func executeRequestWithRetry<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type, TokenType: TokenType.Type) async throws -> ResponseType {
         do {
-            return try await makeRequest(request: request, ResponseType: ResponseType)
+            return try await performAndParseRequest(request: request, ResponseType: ResponseType)
         } catch ApiError.InvalidToken {
             try await refreshToken(TokenType: TokenType)
-            return try await makeRequest(request: request, ResponseType: ResponseType)
+            return try await performAndParseRequest(request: request, ResponseType: ResponseType)
         } catch {
             throw error
         }
     }
 
-    private func makeRequest<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type) async throws -> ResponseType {
+    /// First, it gets the URLRequest from the request object.
+    /// Then, it sends the request to the server.
+    /// Finally, it parses the response data and returns the response object.
+    private func performAndParseRequest<ResponseType: Decodable>(request: RequestProtocol, ResponseType: ResponseType.Type) async throws -> ResponseType {
         // Get the URLRequest
         let urlRequest = try request.getURLRequest(withServerConfig: serverConfig, withAuthToken: delegate?.getAuthToken())
 

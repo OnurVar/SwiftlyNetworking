@@ -8,5 +8,5 @@
 import Foundation
 
 public protocol ResponseParserProtocol {
-    func parse<T: Decodable>(data: Data, request: RequestProtocol, Type: T.Type) throws -> T
+    func parse<T: Decodable>(data: Data, request: RequestProtocol, Type: T.Type) throws -> T?
 }

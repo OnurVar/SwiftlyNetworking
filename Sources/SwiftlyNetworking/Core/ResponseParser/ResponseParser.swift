@@ -18,18 +18,12 @@ public class ResponseParser {
 }
 
 extension ResponseParser: ResponseParserProtocol {
-    public func parse<T: Decodable>(data: Data, request: RequestProtocol, Type: T.Type) throws -> T {
+    public func parse<T: Decodable>(data: Data, request: RequestProtocol, Type: T.Type) throws -> T? {
         // Get the JSONDecoder for a request
         let decoder = delegate?.getJsonDecoder(request: request) ?? JSONDecoder()
 
-        // Check if data exist
-        guard data.count > 0 else {
-            // Check if the parser expects to return 'EmptyResponse'
-            guard let emptyResponse = EmptyResponse() as? T else {
-                throw ApiError.UnknownNetworkError
-            }
-            return emptyResponse
-        }
+        // Make sure the data is not empty
+        guard data.count > 0 else { return nil }
 
         // Decode the data
         do {

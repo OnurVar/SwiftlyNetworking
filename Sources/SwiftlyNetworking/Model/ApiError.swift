@@ -12,7 +12,6 @@ public enum ApiError: Error {
     case NetworkError(message: String)
     case BadResponse(statusCode: Int)
     case ServerError(statusCode: Int?, message: String?)
-    case UnknownNetworkError
     case NoJsonDecoder
     case InvalidToken
     case BadDecoding(message: String)
@@ -41,8 +40,6 @@ extension ApiError: LocalizedError {
                 return "[Error:1004] [Code:\(statusCode)]"
             }
             return "[Error:1004]"
-        case .UnknownNetworkError:
-            return "[Error:1005]"
         case .NoJsonDecoder:
             return "[Error:1006]"
         case .InvalidToken:
